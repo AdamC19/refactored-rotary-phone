@@ -45,7 +45,17 @@ def print_filesystem(filesys: FileObject, depth: int):
         print(" (dir)")
     else:
         print(" (file, size={})".format(filesys.size))
-    
+#------------------------------------------------------------------------------
+def sum_small_dirs(filesys, thresh):
+    this_size = filesys.get_size()
+    this_sum = 0
+    if filesys.is_dir and this_size <= thresh:
+        this_sum += this_size
+
+    if filesys.is_dir and len(filesys.children) > 0:
+        for child in filesys.children:
+            this_sum += sum_small_dirs(child, thresh)
+    return this_sum
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
     file_list = os.listdir()
@@ -100,3 +110,6 @@ if __name__ == "__main__":
     print("FILESYSTEM")
     print("==========")
     print_fs_recursive(filesys_root, 0)
+
+    n_small_dirs = sum_small_dirs(filesys_root, 100000)
+    print("Sum of sizes of all dirs at most 100000 in size is : {}".format(n_small_dirs))
