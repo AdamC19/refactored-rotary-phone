@@ -3,23 +3,17 @@ import os
 
 #------------------------------------------------------------------------------
 class FileObject(object):
-    def __init__(self, name, size=0, parent=None, children=[], is_dir=False):
+    def __init__(self, name, size=0, parent=None, is_dir=False):
         self.name = name
         self.size = size
         self.parent = parent
-        self.children = children
+        self.children = []
         self.is_dir = is_dir
         if self.is_dir:
             self.size = 0
             print("Adding directory object {}".format(self.name))
         else:
             print("Adding file object {}".format(self.name))
-    
-    def get_parent(self):
-        return self.parent
-
-    def set_parent(self, parent):
-        self.parent = parent
     
     def add_child(self, child):
         self.children.append(child)
@@ -36,7 +30,7 @@ class FileObject(object):
 
 #------------------------------------------------------------------------------
 def print_fs_recursive(filesys: FileObject, depth: int):
-    if depth > 16:
+    if depth >= 16:
         return
     print_filesystem(filesys, depth)
     if len(filesys.children) > 0:
@@ -67,7 +61,8 @@ if __name__ == "__main__":
 
 
     # FIRST CONSTRUCT FILESYSTEM
-    filesys = FileObject('/', is_dir=True)
+    filesys_root = FileObject('/', is_dir=True)
+    filesys = filesys_root
     cmd = ''
     for line in f:
         parts = line.strip().split(' ')
@@ -81,7 +76,8 @@ if __name__ == "__main__":
                     if type(filesys.parent) != type(None):
                         filesys = filesys.parent
                 elif cd_dest == '/':
-                    pass
+                    while type(filesys.parent) != type(None):
+                        filesys = filesys.parent
                 else:
                     for child in filesys.children:
                         if child.is_dir and child.name == cd_dest:
@@ -97,11 +93,10 @@ if __name__ == "__main__":
                 filesys.add_child(FileObject(parts[1], parent=filesys, size=int(parts[0])))
 
     # first, go to our root directory
-    while type(filesys.parent) != type(None):
-        filesys = filesys.parent
+    # filesys = filesys_root
 
     # now print our file system
     print("==========")
     print("FILESYSTEM")
     print("==========")
-    print_fs_recursive(filesys, 0)
+    print_fs_recursive(filesys_root, 0)
