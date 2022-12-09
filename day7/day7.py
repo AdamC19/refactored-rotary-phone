@@ -57,6 +57,15 @@ def sum_small_dirs(filesys, thresh):
             this_sum += sum_small_dirs(child, thresh)
     return this_sum
 #------------------------------------------------------------------------------
+def find_dirs_to_delete(filesys, size, candidates):
+    this_size = filesys.get_size()
+    if filesys.is_dir and this_size >= size:
+        candidates.append(this_size)
+
+    if filesys.is_dir and len(filesys.children) > 0:
+        for child in filesys.children:
+            find_dirs_to_delete(child, size, candidates)
+#------------------------------------------------------------------------------
 if __name__ == "__main__":
     file_list = os.listdir()
     for i in range(0, len(file_list)):
@@ -110,6 +119,23 @@ if __name__ == "__main__":
     print("FILESYSTEM")
     print("==========")
     print_fs_recursive(filesys_root, 0)
+    print("==========")
 
     n_small_dirs = sum_small_dirs(filesys_root, 100000)
-    print("Sum of sizes of all dirs at most 100000 in size is : {}".format(n_small_dirs))
+    print("\nSum of sizes of all dirs at most 100000 in size is : {}".format(n_small_dirs))
+
+    total_space  = 70000000
+    needed_space = 30000000
+
+    full_space = filesys_root.get_size()
+    space_to_free = needed_space - (total_space - full_space)
+
+    print("Directory / is {} units in size.".format(full_space))
+    print("We need to free up {} units.".format(space_to_free))
+    
+    candidates = []
+
+    find_dirs_to_delete(filesys_root, space_to_free, candidates)
+    print("CANDIDATES FOR DELETION:")
+    print(candidates)
+    print("\nThe minimum sized file then is of size {}.".format(min(candidates)))
