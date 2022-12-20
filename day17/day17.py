@@ -80,29 +80,30 @@ def nudge_rock(cave, nudge):
     while nudge_ok and '@' in cave[yy]:
         if nudge == '>':
             last_unit = cave[yy][0]
-            x = 1
+            x = 0
             unit = cave[yy][x]
-            found_right_edge = False
-            while x < len(cave[yy]) and not found_right_edge:
+            found_edge = False
+            while x < len(cave[yy]) and not found_edge:
+                x += 1
                 unit = cave[yy][x]
                 if unit != '@' and last_unit == '@':
-                    found_right_edge = True
+                    found_edge = True
                 last_unit = unit
-                x += 1
+                
 
-            nudge_ok = found_right_edge and cave[yy][x] == '.'
+            nudge_ok = found_edge and cave[yy][x] == '.'
 
         elif nudge == '<':
-            x = 1
+            x = 0
             unit = cave[yy][x]
             next_unit = cave[yy][x+1]
             found_edge = False
             while x < len(cave[yy]) - 2 and not found_edge:
+                x += 1
                 unit = cave[yy][x]
                 next_unit = cave[yy][x+1]
                 if next_unit == '@' and unit != '@':
                     found_edge = True
-                x += 1
             nudge_ok = found_edge and unit == '.'
 
         yy -= 1
@@ -111,11 +112,12 @@ def nudge_rock(cave, nudge):
         while '@' in cave[y]:
             if nudge == '>':
                 # find index to remove space from
-                x = 1
+                x = 0
                 found_edge = False
                 while not found_edge:
-                    found_edge = cave[y][x] == '.' and cave[y][x-1] == '@'
                     x += 1
+                    found_edge = cave[y][x] == '.' and cave[y][x-1] == '@'
+                    
                 pop_ind = x
                 if cave[y][pop_ind] == '.':
                     # we can shift right
@@ -131,9 +133,11 @@ def nudge_rock(cave, nudge):
                 
             elif nudge == '<':
                 # find index to remove space from
-                x = 1
-                while cave[y][x] != '.' and cave[y][x+1] != '@':
+                x = 0
+                found_edge = False
+                while not found_edge:
                     x += 1
+                    found_edge = cave[y][x] == '.' and cave[y][x+1] == '@'
                 pop_ind = x
                 if cave[y][pop_ind] == '.':
                     # we can shift everything left
@@ -210,6 +214,9 @@ def get_rock_height(cave):
         height -= 1
     return height + 1
 #-----------------------------------------------------------------------------
+# def shift_tower_down(cave):
+
+#-----------------------------------------------------------------------------
 if __name__ == "__main__":
     file_list = os.listdir()
     for i in range(0, len(file_list)):
@@ -238,6 +245,7 @@ if __name__ == "__main__":
     stopped_rocks = 0
 
     stopped_count = int(input("Rock Count: "))
+    height = 0
     while stopped_rocks < stopped_count:
         
         add_rock(cave, ROCK_SEQ[rock_seq_ind])
